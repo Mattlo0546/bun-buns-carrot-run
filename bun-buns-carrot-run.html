@@ -990,5 +990,22 @@ function render(){
   for (const c of entities.carrots) if(!c.collected) drawCarrot(c.x, c.y);
   for (const t of entities.totes) if(!t.collected) drawTote(t.x, t.y);
   for (const cp of entities.checkpoints) drawCheckpoint(cp);
-  if (entities.goal) drawGoal(entities.goal
-// ======================
+  if (entities.goal) drawGoal(entities.goal);
+
+  // foxes
+  for (const f of entities.foxes) if (f.remove<=0) drawFox(f);
+
+  // player
+  if (player && !player.dead) drawBunBun(player);
+
+  // particles and floaters
+  for (const p of particles) if (p.active) p.draw();
+  for (const f of floaters) if (f.active) f.draw();
+
+  ctx.restore(); // world-space
+  ctx.restore(); // shake
+}
+
+</script>
+</body>
+</html>
