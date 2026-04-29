@@ -1,0 +1,16 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "gamify-dev",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": [
+        "--prefix",
+        "/Users/mattlo/Desktop/Codespace-Fun/gamify.me",
+        "run",
+        "dev"
+      ],
+      "port": 3000
+    }
+  ]
+}

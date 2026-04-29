@@ -1,0 +1,21 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(gh auth *)",
+      "Bash(gh --version)",
+      "Bash(npm --version)",
+      "Bash(npx --yes create-next-app@latest /Users/mattlo/Desktop/Codespace-Fun/gamify.me --typescript --tailwind --eslint --app --src-dir --import-alias \"@/*\" --use-npm --yes)",
+      "Bash(npx tsc *)",
+      "Bash(echo \"EXIT: $?\")",
+      "Bash(npm run *)",
+      "Bash(npx eslint *)",
+      "Bash(lsof -ti:3000)",
+      "Bash(xargs kill *)",
+      "mcp__Claude_Preview__preview_start",
+      "Bash(npm install *)",
+      "Bash(npm uninstall *)",
+      "Read(//tmp/**)",
+      "Bash(python3 -m json.tool)"
+    ]
+  }
+}
