@@ -5,7 +5,7 @@
 **A tiny pixel-art platformer that lives in a single HTML file.**
 Collect carrots, bop foxes, and glide over pits with the tote bag.
 
-[![Play now](https://img.shields.io/badge/▶_PLAY_NOW-in_your_browser-ffb84d?style=for-the-badge)](https://mattlo0546.github.io/bun-buns-carrot-run/)
+[![Open source](https://img.shields.io/badge/open_source-MIT-ffb84d?style=for-the-badge)](LICENSE)
 
 ![HTML5 Canvas](https://img.shields.io/badge/HTML5-Canvas-e34f26?logo=html5&logoColor=white)
 ![Vanilla JS](https://img.shields.io/badge/vanilla-JavaScript-f7df1e?logo=javascript&logoColor=black)
@@ -50,9 +50,9 @@ Collect carrots, bop foxes, and glide over pits with the tote bag.
 | Pause | <kbd>P</kbd> / <kbd>Esc</kbd> | ❚❚ |
 | Mute | <kbd>M</kbd> | — |
 
-## 🚀 Run it locally
+## 🚀 Play it
 
-There's nothing to build or install. Clone the repo and open the file:
+The game isn't hosted anywhere right now (see [History](#-history)), but it runs entirely in your browser. There's nothing to build or install. Clone the repo and open the file:
 
 ```bash
 git clone https://github.com/Mattlo0546/bun-buns-carrot-run.git
@@ -74,6 +74,22 @@ G  goal
 
 Physics, speeds and timings are all in the `CONFIG` object at the top of the script.
 
+## 📜 History
+
+BunBun’s Carrot Run started life as a small side project. It was later hosted on Vercel as part of **opengame** (opengame.me), a home for little browser games.
+
+That hosting has since been retired. The game is now fully open source here, in one self-contained `index.html` you can play offline, fork and remix.
+
+## 🤝 Contributing
+
+Contributions are welcome! New levels, sprites, sounds and bug fixes are all fair game.
+
+1. Fork the repo and create a branch
+2. Make your changes in `index.html` (no build step needed)
+3. Open it in a browser to test, then open a pull request
+
+Found a bug or have an idea? [Open an issue](https://github.com/Mattlo0546/bun-buns-carrot-run/issues).
+
 ## 📄 License
 
-[MIT](LICENSE)
+Released under the [MIT License](LICENSE). You're free to use, modify and share it.
