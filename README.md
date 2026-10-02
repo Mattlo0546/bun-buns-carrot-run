@@ -2,94 +2,112 @@
 
 # 🐰 BunBun’s Carrot Run 🥕
 
-**A tiny pixel-art platformer that lives in a single HTML file.**
-Collect carrots, bop foxes, and glide over pits with the tote bag.
+**A retro NES-style platformer where _you_ choose the hero.**
+Play as BunBun, or use the Character Maker to turn a photo or a one-line description into a fully animated pixel-art hero and power-up. The sprites are drawn by Google Gemini using **your own API key**.
 
 [![Open source](https://img.shields.io/badge/open_source-MIT-ffb84d?style=for-the-badge)](LICENSE)
 
 ![HTML5 Canvas](https://img.shields.io/badge/HTML5-Canvas-e34f26?logo=html5&logoColor=white)
 ![Vanilla JS](https://img.shields.io/badge/vanilla-JavaScript-f7df1e?logo=javascript&logoColor=black)
-![Web Audio](https://img.shields.io/badge/Web_Audio-chiptune-7db6ff)
-![Zero assets](https://img.shields.io/badge/assets-zero-2ec27e)
-![Mobile friendly](https://img.shields.io/badge/mobile-touch_controls-ff7aa2)
-![License: MIT](https://img.shields.io/badge/license-MIT-blue)
+![Gemini](https://img.shields.io/badge/sprites_by-Gemini-8e75ff?logo=googlegemini&logoColor=white)
+![No build step](https://img.shields.io/badge/build_step-none-2ec27e)
+![Bring your own key](https://img.shields.io/badge/API_key-bring_your_own-ff7aa2)
 
-<img src="docs/hills.png" alt="BunBun jumping off a moving platform in Burrow Hills" width="820" />
+<img src="docs/level.png" alt="BunBun in World 1-1, with foxes, carrots and question blocks" width="820" />
 
 </div>
 
 ## ✨ Features
 
-- **3 hand-built stages**: Sunny Meadow, Burrow Hills and Carrot Summit, with checkpoints along the way
-- **Feels good to play**: coyote time, jump buffering, variable jump height and squash & stretch
-- **Tote bag power-up**: hold jump to glide, and it absorbs one hit
-- **Foxes** patrol the levels. Bop them from above and avoid them everywhere else
-- **Moving platforms, spikes and pits** to keep you on your toes
-- **Synthesized chiptune + SFX** made live with the Web Audio API
-- **Everything is drawn in code.** There are no image or sound files
-- **Keyboard and touch controls**, pause, mute, and a saved best time
+- **Hub world and 3 worlds**, with pipes, underground areas, vines, checkpoints and a flagpole finish. Clear one world to unlock the next
+- **Power-ups**: leek (throwable), Kumamon, Miku, a Yoshi ride, star power and 1-ups, each with its own BunBun outfit
+- **Character Maker**: upload a photo (you, your pet, a drawing…) or just describe a hero and a power-up. Gemini draws a 5×5 sprite sheet (idle, walk, jump, powered-up and the item), and the game cuts it into frames so you play every level as your creation
+- **Bring your own key**: there's no backend. The browser talks straight to Google with the player's own Gemini API key
+- **Save and reload heroes**: download the generated sheet and load it later with no API key needed. Your last hero is remembered in the browser
+- **Synthesized chiptune + SFX** made with the Web Audio API
+- **Keyboard and touch controls**, fullscreen, mute, and saved world progress
 
 <table>
   <tr>
     <td><img src="docs/title.png" alt="Title screen" /></td>
-    <td><img src="docs/summit.png" alt="Gliding with the tote bag on Carrot Summit" /></td>
+    <td><img src="docs/maker.png" alt="The Character Maker" /></td>
   </tr>
   <tr>
     <td align="center"><sub>Title screen</sub></td>
-    <td align="center"><sub>Gliding with the tote bag on Carrot Summit</sub></td>
+    <td align="center"><sub>Character Maker</sub></td>
   </tr>
 </table>
+
+## 🚀 Play it
+
+It's a static site with no build step, but it uses ES modules, so serve it over HTTP instead of opening the file directly:
+
+```bash
+git clone https://github.com/Mattlo0546/bun-buns-carrot-run.git
+cd bun-buns-carrot-run
+python3 -m http.server 8000
+```
+
+Then open <http://localhost:8000>. Any static host works too (GitHub Pages, Netlify, Vercel, …).
 
 ## 🎮 Controls
 
 | Action | Keyboard | Touch |
 | --- | --- | --- |
-| Move | <kbd>A</kbd> <kbd>D</kbd> or <kbd>←</kbd> <kbd>→</kbd> | ◀ ▶ |
-| Jump | <kbd>Space</kbd> / <kbd>W</kbd> / <kbd>↑</kbd> | ▲ |
-| Glide (with tote) | hold jump while falling | hold ▲ |
-| Pause | <kbd>P</kbd> / <kbd>Esc</kbd> | ❚❚ |
-| Mute | <kbd>M</kbd> | — |
+| Move | <kbd>←</kbd> <kbd>→</kbd> | ◀ ▶ |
+| Run | hold <kbd>Shift</kbd> | — |
+| Jump (hold for higher) | <kbd>Space</kbd> / <kbd>↑</kbd> | A |
+| Enter pipe · ground-pound (in the air) | <kbd>↓</kbd> | ▼ |
+| Throw / use power | <kbd>Z</kbd> / <kbd>X</kbd> | B |
+| Mute · Fullscreen | <kbd>M</kbd> · <kbd>F</kbd> | buttons |
 
-## 🚀 Play it
+## 🎨 Character Maker & your API key
 
-The game isn't hosted anywhere right now (see [History](#-history)), but it runs entirely in your browser. There's nothing to build or install. Clone the repo and open the file:
+1. Get a free Gemini API key from [Google AI Studio](https://aistudio.google.com/apikey).
+2. In the game, open **⚙ Settings**, paste the key, and choose whether to remember it on this device.
+3. Open **✨ Create your hero**. Add a photo or description for the hero and the power-up, then hit **Generate**.
+4. Happy with the preview? **▶ Play as this hero**. If not, **🎲 Re-roll**.
 
-```bash
-git clone https://github.com/Mattlo0546/bun-buns-carrot-run.git
-open bun-buns-carrot-run/index.html
+**Where your key goes:** only to `generativelanguage.googleapis.com`, sent directly from your browser. It's held in memory, or in your browser's `localStorage` if you tick “remember”. **Forget key** removes it. It's never committed, logged or sent anywhere else, and this repo contains no keys.
+
+> [!NOTE]
+> Image generation uses your own Google quota and billing. Some image models need billing enabled on your Google Cloud project. You can switch models in Settings.
+
+**How it works:** the maker picks a chroma-key background colour that doesn't clash with your images ([`key-color.js`](js/maker/key-color.js)). It asks Gemini for a strict 5×5 sheet ([`gemini.js`](js/maker/gemini.js)), then removes the background and slices out the frames ([`slice-grid.js`](js/maker/slice-grid.js)). Those frames replace BunBun's sprites in the engine.
+
+## 🗂️ Project layout
+
 ```
-
-Tip: add `?stage=2` or `?stage=3` to the URL to jump straight to a stage.
-
-## 🛠️ Make your own levels
-
-Levels are ASCII maps near the top of the script in [`index.html`](index.html). Edit the characters and refresh:
-
+index.html          page shell, menus, Character Maker and Settings panels
+css/style.css
+js/app.js           glue: menus, maker flow, settings, touch controls
+js/engine/          the game (state, physics, levels, entities, rendering, audio)
+js/maker/           Gemini client, chroma-key picker, sheet slicer
+assets/             BunBun sprite sheets
 ```
-#  ground          B  stone block     ^  spikes
-S  start           C  carrot          T  tote bag
-F  fox             K  checkpoint      M  moving platform
-G  goal
-```
-
-Physics, speeds and timings are all in the `CONFIG` object at the top of the script.
 
 ## 📜 History
 
-BunBun’s Carrot Run started life as a small side project. It was later hosted on Vercel as part of **opengame** (opengame.me), a home for little browser games.
+BunBun’s Carrot Run started as a small single-file canvas game. It grew into a bigger NES-style platformer with a hub world, three worlds and hand-drawn BunBun sprite sheets.
 
-That hosting has since been retired. The game is now fully open source here, in one self-contained `index.html` you can play offline, fork and remix.
+The Character Maker was first built as a separate Next.js app (**gamify.me**). It was hosted on Vercel as **opengame** (opengame.me), and generated sprites server-side through Vertex AI. That hosting has been retired.
+
+The game is now fully open source and static. The maker runs entirely in the browser, with each player's own Gemini API key.
 
 ## 🤝 Contributing
 
-Contributions are welcome! New levels, sprites, sounds and bug fixes are all fair game.
+Contributions are welcome! New levels, power-ups, sprites, sounds and bug fixes are all fair game.
 
 1. Fork the repo and create a branch
-2. Make your changes in `index.html` (no build step needed)
-3. Open it in a browser to test, then open a pull request
+2. Serve it locally (see above) and make your changes
+3. Open a pull request
+
+Please **never commit API keys** or service-account files. The `.gitignore` blocks the common ones.
 
 Found a bug or have an idea? [Open an issue](https://github.com/Mattlo0546/bun-buns-carrot-run/issues).
 
 ## 📄 License
 
-Released under the [MIT License](LICENSE). You're free to use, modify and share it.
+Code is released under the [MIT License](LICENSE).
+
+The BunBun sprite sheets are original art made for this project. Some power-up outfits are fan tributes (Hatsune Miku, Kumamon, Yoshi); those characters and trademarks belong to their respective owners.

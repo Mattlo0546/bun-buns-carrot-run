@@ -1,1111 +1,139 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-<meta name="theme-color" content="#0b1020" />
-<meta name="description" content="BunBun's Carrot Run — a tiny pixel-art platformer in a single HTML file. Collect carrots, bop foxes, glide with the tote bag." />
-<title>BunBun’s Carrot Run</title>
-<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🥕</text></svg>" />
-<style>
-  /* =====================
-     Minimal CSS & Layout
-     ===================== */
-  :root {
-    --bg: #0b1020;
-    --ink: #f6f7fb;
-    --accent: #ffb84d;
-    --ui: #1a2138;
-    --ui-2: #2a3355;
-    --heart: #ff4d6d;
-    --hudShadow: rgba(0,0,0,0.6);
-  }
-  html, body {
-    margin: 0; height: 100%; background: var(--bg); color: var(--ink);
-    font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, Arial, "Apple Color Emoji", "Segoe UI Emoji";
-    overscroll-behavior: none;
-    touch-action: none;
-    user-select: none; -webkit-user-select: none;
-  }
-  #wrap { position: relative; width: 100%; height: 100vh; height: 100dvh; overflow: hidden; }
-  canvas { display: block; background: #87c5ff; image-rendering: pixelated; }
-  .overlay { position: absolute; inset: 0; pointer-events: none; }
-  .titleUI, .pauseUI, .endUI { position: absolute; inset: 0; display: grid; place-items: center; pointer-events: none; padding: 16px; }
-  .panel { pointer-events: auto; background: linear-gradient(180deg, var(--ui), var(--ui-2)); color: var(--ink);
-           border: 2px solid #0008; border-radius: 16px; padding: 20px 24px; box-shadow: 0 12px 40px #0009; max-width: 720px; }
-  .title { font-size: clamp(26px, 6vw, 40px); line-height: 1.1; text-align: center; text-shadow: 0 3px 0 #000a, 0 0 12px #fff2; margin: 0 0 8px; }
-  .subtitle { text-align: center; opacity: .9; margin: 0 0 16px; }
-  .row { display: flex; gap: 12px; align-items: center; justify-content: center; flex-wrap: wrap; }
-  button { pointer-events: auto; appearance: none; font: inherit; color: #111; background: var(--accent); border: 0; border-radius: 12px;
-           padding: 10px 14px; box-shadow: inset 0 -2px 0 #0004, 0 4px 0 #0007; cursor: pointer; }
-  button:active { transform: translateY(1px); box-shadow: inset 0 -1px 0 #0004, 0 3px 0 #0005; }
-  button:focus-visible { outline: 3px solid #fff; outline-offset: 2px; }
-  kbd { background: #0005; border: 1px solid #fff3; border-radius: 4px; padding: 0 4px; font-size: .9em; }
-  .mutetoggle { background: #e8eefc; }
-  .credits { text-align: center; font-size: 12px; opacity: .8; margin-top: 10px; }
-  .best { text-align: center; font-size: 13px; opacity: .85; margin-top: 10px; }
-  .hud { position: absolute; left: 12px; top: 8px; display: flex; gap: 8px; align-items: center; flex-wrap: wrap; font-weight: 700; text-shadow: 0 2px 0 var(--hudShadow); }
-  .hud .pill { background: #0006; padding: 6px 8px; border-radius: 10px; border: 1px solid #fff2; }
-  .topRight { position: absolute; right: 8px; top: 8px; display: flex; gap: 8px; }
-  .smallBtn { font-size: 12px; padding: 8px 10px; background: #dfe6ff; }
-  .playing-only { display: none; }
-  body.playing .playing-only { display: flex; }
-
-  /* Mobile touch controls */
-  #touch { position: absolute; inset: 0; pointer-events: none; }
-  .touchpad { position: absolute; bottom: 18px; left: 18px; display: grid; grid-template-columns: 64px 64px; grid-template-rows: 64px; gap: 12px; }
-  .touchbtn { width: 64px; height: 64px; border-radius: 16px; background: #ffffff26; border: 2px solid #ffffff55; box-shadow: inset 0 -2px 0 #0004;
-              pointer-events: auto; color: #fff; font-size: 24px; padding: 0; touch-action: none; }
-  .touchbtn:active, .touchbtn.held { background: #ffffff4d; transform: translateY(1px); }
-  .touchRight { position: absolute; bottom: 18px; right: 18px; display: flex; flex-direction: column-reverse; gap: 12px; align-items: flex-end; }
-  #touchJump { width: 80px; height: 80px; border-radius: 40px; }
-  #touchPause { width: 48px; height: 48px; font-size: 16px; }
-
-  /* Hide touch controls when a mouse + keyboard is likely */
-  @media (hover:hover) and (pointer:fine) { #touch { display:none !important; } }
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#5C94FC">
+  <meta name="description" content="BunBun's Carrot Run: a retro platformer where you can turn yourself (or anything) into the hero and pick your own power-up with AI-generated sprites.">
+  <title>BunBun’s Carrot Run</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🥕</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
 </head>
-<body>
-<div id="wrap">
-  <canvas id="game" width="426" height="240"></canvas>
-  <div class="overlay">
-    <div class="hud playing-only" id="hud">
-      <div class="pill" id="hudCarrot">🥕 x 00</div>
-      <div class="pill" id="hudLives">❤️ x 3</div>
-      <div class="pill" id="hudPower">👜 —</div>
-      <div class="pill" id="hudTime">⏱ 0:00</div>
-    </div>
-    <div class="topRight playing-only">
-      <button class="smallBtn" id="btnPause" title="Pause (P / Esc)">Pause</button>
-      <button class="smallBtn mutetoggle" id="btnMute" title="Mute (M)">Sound: On</button>
-    </div>
-  </div>
+<body class="on-title">
+  <main id="stage">
+    <canvas id="game-canvas" width="800" height="480" tabindex="0" aria-label="BunBun's Carrot Run game"></canvas>
 
-  <!-- Title Screen -->
-  <div class="titleUI" id="titleUI">
+    <!-- Title menu (over the canvas title screen) -->
+    <nav id="menu" aria-label="Main menu">
+      <button class="btn btn-primary" id="btn-play">▶ Play</button>
+      <button class="btn btn-magic" id="btn-create">✨ Create your hero</button>
+      <button class="btn btn-ghost" id="btn-settings">⚙ Settings</button>
+      <p class="controls-hint"><kbd>←</kbd><kbd>→</kbd> move · <kbd>Space</kbd> jump · <kbd>Shift</kbd> run · <kbd>↓</kbd> pipes &amp; ground-pound · <kbd>Z</kbd>/<kbd>X</kbd> throw</p>
+      <p id="custom-badge" hidden>Playing as <strong id="custom-name"></strong> · <button class="link" id="btn-reset-hero">back to BunBun</button></p>
+    </nav>
+
+    <!-- In-game buttons -->
+    <div id="game-buttons">
+      <button class="icon-btn" id="btn-mute" title="Mute (M)" aria-label="Mute">🔊</button>
+      <button class="icon-btn" id="btn-fullscreen" title="Fullscreen (F)" aria-label="Fullscreen">⛶</button>
+      <button class="icon-btn" id="btn-home" title="Back to title" aria-label="Back to title">⌂</button>
+    </div>
+
+    <!-- Touch controls -->
+    <div id="touch" aria-hidden="true">
+      <div class="pad-left">
+        <button class="touch-btn" data-key="ArrowLeft">◀</button>
+        <button class="touch-btn" data-key="ArrowDown">▼</button>
+        <button class="touch-btn" data-key="ArrowRight">▶</button>
+      </div>
+      <div class="pad-right">
+        <button class="touch-btn" data-key="KeyX">B</button>
+        <button class="touch-btn touch-a" data-key="Space">A</button>
+      </div>
+    </div>
+  </main>
+
+  <!-- Character Maker -->
+  <section class="overlay" id="maker" hidden aria-labelledby="maker-title">
     <div class="panel">
-      <h1 class="title">🐰 BunBun’s Carrot Run 🥕</h1>
-      <p class="subtitle">A tiny side-scrolling platformer · <strong>Collect carrots</strong>, bop <strong>foxes</strong>, and glide with the <strong>tote bag</strong>!</p>
-      <div style="font-size:14px; line-height:1.7; margin: 0 0 16px; text-align:center; opacity:.95;">
-        <strong>Controls</strong> — Move: <kbd>A</kbd>/<kbd>D</kbd> or <kbd>◀</kbd>/<kbd>▶</kbd> · Jump: <kbd>W</kbd>/<kbd>▲</kbd>/<kbd>Space</kbd> (hold to glide with the tote) · Pause: <kbd>P</kbd> · Mute: <kbd>M</kbd><br/>
-        On mobile, use the on-screen buttons.
+      <header class="panel-head">
+        <p class="eyebrow">Character Maker</p>
+        <h2 id="maker-title">Forge your <span class="rainbow">hero</span></h2>
+        <p class="sub">Upload a photo or describe your hero and their power-up. Gemini draws the pixel-art sprites, and you play the whole game as them.</p>
+      </header>
+
+      <div class="notice" id="key-notice" hidden>
+        🔑 This uses <strong>your own</strong> Google Gemini API key. <button class="link" id="btn-open-key">Add your key</button> to start. It's free to get one.
       </div>
-      <div class="row">
-        <button id="btnStart">▶ Press Enter / Tap to Start</button>
-        <button id="btnTitleMute" class="mutetoggle">Sound: On</button>
+      <div class="error" id="maker-error" role="alert" hidden></div>
+
+      <label class="field">
+        <span>Game title</span>
+        <input id="in-title" type="text" maxlength="28" placeholder="BunBun's Carrot Run" autocomplete="off">
+      </label>
+
+      <div class="slots">
+        <div class="slot">
+          <label class="drop" id="drop-hero">
+            <input type="file" accept="image/*" id="in-hero">
+            <img alt="" hidden>
+            <span class="drop-empty"><b>Hero</b><small>photo, drawing, pet…</small></span>
+          </label>
+          <textarea id="in-hero-text" rows="2" placeholder="…or describe them, e.g. “a tiny knight with a red scarf”"></textarea>
+        </div>
+        <div class="slot">
+          <label class="drop" id="drop-powerup">
+            <input type="file" accept="image/*" id="in-powerup">
+            <img alt="" hidden>
+            <span class="drop-empty"><b>Power-up</b><small>the item they pick up</small></span>
+          </label>
+          <textarea id="in-powerup-text" rows="2" placeholder="…or describe it, e.g. “a flaming baguette”"></textarea>
+        </div>
       </div>
-      <div class="best" id="titleBest"></div>
-      <div class="credits">3 stages · pure canvas pixel art · synthesized chiptune · zero assets</div>
-    </div>
-  </div>
 
-  <!-- Pause Screen -->
-  <div class="pauseUI" id="pauseUI" style="display:none;">
-    <div class="panel">
-      <h2 style="margin:0 0 8px; text-align:center;">Paused</h2>
-      <div style="opacity:.9; font-size:14px;">Press <kbd>P</kbd> or tap Resume</div>
-      <div class="row" style="margin-top:12px;">
-        <button id="btnResume">Resume</button>
-        <button id="btnQuitToTitle">Title</button>
+      <div class="progress" id="maker-progress" hidden><span class="spinner"></span><span id="progress-label">Working…</span></div>
+
+      <div class="previews" id="previews" hidden>
+        <figure><img id="pv-hero" alt="Hero walk preview"><figcaption>Hero</figcaption></figure>
+        <figure><img id="pv-powered" alt="Powered-up hero preview"><figcaption>Powered up</figcaption></figure>
+        <figure><img id="pv-item" alt="Power-up item preview"><figcaption>Power-up</figcaption></figure>
       </div>
-    </div>
-  </div>
 
-  <!-- End Screen -->
-  <div class="endUI" id="endUI" style="display:none;">
-    <div class="panel" id="endPanel">
-      <h2 style="margin:0 0 8px; text-align:center;" id="endTitle">You did it! 🎉</h2>
-      <div id="endStats" style="white-space:pre; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; text-align:center;"></div>
-      <div style="margin:10px 0 0; text-align:center;" id="endMsg"></div>
-      <div class="row" style="margin-top:12px;">
-        <button id="btnRestart">Play Again</button>
-        <button id="btnEndTitle">Title</button>
+      <div class="actions">
+        <button class="btn btn-ghost" id="btn-maker-close">Close</button>
+        <button class="btn btn-ghost" id="btn-download" hidden>⬇ Save sheet</button>
+        <button class="btn btn-magic" id="btn-generate">✨ Generate sprites</button>
+        <button class="btn btn-primary" id="btn-use" hidden>▶ Play as this hero</button>
       </div>
+
+      <p class="fineprint">
+        Already have a sprite sheet (5×5 grid on a solid background)? <label class="link"><input type="file" accept="image/png,image/*" id="in-sheet" hidden>Load it</label>. No API key needed.
+      </p>
     </div>
-  </div>
+  </section>
 
-  <!-- Touch controls -->
-  <div id="touch" class="playing-only">
-    <div class="touchpad">
-      <button class="touchbtn" id="touchLeft" aria-label="Left">◀</button>
-      <button class="touchbtn" id="touchRight" aria-label="Right">▶</button>
+  <!-- Settings -->
+  <section class="overlay" id="settings" hidden aria-labelledby="settings-title">
+    <div class="panel panel-narrow">
+      <header class="panel-head">
+        <p class="eyebrow">Settings</p>
+        <h2 id="settings-title">Gemini API key</h2>
+      </header>
+      <p class="sub">The Character Maker runs entirely in your browser and talks to Google directly with your key. Nothing goes through any other server. <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">Get a free key from Google AI Studio ↗</a></p>
+
+      <label class="field">
+        <span>API key</span>
+        <input id="in-key" type="password" placeholder="AIza…" autocomplete="off" spellcheck="false">
+      </label>
+      <label class="check"><input type="checkbox" id="in-remember"> Remember on this device (saved in this browser's local storage)</label>
+
+      <label class="field">
+        <span>Image model</span>
+        <select id="in-model"></select>
+      </label>
+
+      <div class="actions">
+        <button class="btn btn-ghost" id="btn-forget">Forget key</button>
+        <button class="btn btn-ghost" id="btn-reset-progress">Reset world progress</button>
+        <button class="btn btn-primary" id="btn-settings-save">Save</button>
+      </div>
+      <p class="fineprint" id="settings-status" aria-live="polite"></p>
     </div>
-    <div class="touchRight">
-      <button class="touchbtn" id="touchJump" aria-label="Jump">▲</button>
-      <button class="touchbtn" id="touchPause" aria-label="Pause">❚❚</button>
-    </div>
-  </div>
-</div>
+  </section>
 
-<script>
-/*
-=====================================================
-BunBun’s Carrot Run — Single-file HTML5 Canvas Platformer
-=====================================================
-- No external assets. Pixel art drawn with Canvas.
-- WebAudio for music + SFX (all synthesized).
-- Fixed timestep physics with tile collisions.
-- Three stages built from ASCII maps (see LEVELS below).
-- Tote Bag power-up: glide & one-hit protection.
-- Mobile controls + keyboard, pause, title, HUD, best time.
-
-Dev tip: open with ?stage=2 (or 3) to jump straight into a stage.
-*/
-
-// ==========================
-// CONFIG — tweakable knobs
-// ==========================
-const CONFIG = {
-  WIDTH: 426,          // internal resolution (16:9) — scaled with letterboxing
-  HEIGHT: 240,
-  CAMERA_LERP: 0.12,   // camera follow strength
-  GRAVITY: 0.36,
-  MOVE_SPEED: 1.8,     // max run speed per frame
-  AIR_ACCEL: 0.15,
-  FRICTION_GROUND: 0.8,
-  FRICTION_AIR: 0.95,
-  JUMP_VELOCITY: -5.6,
-  COYOTE_TIME: 8,      // frames of coyote time
-  JUMP_BUFFER: 8,      // frames we buffer jump input
-  VAR_JUMP_CUT: 0.45,  // multiplier when releasing jump early
-  GLIDE_GRAVITY: 0.12, // gravity while gliding with tote
-  GLIDE_MAX_FALL: 1.1,
-  MAX_FALL: 7.0,
-  TILE: 16,            // tile size
-  SHAKE_DECAY: 0.9,
-  STOMP_BOUNCE: -4.2,
-  FOX_SPEED: 0.5,
-  FOX_SQUASH_TIME: 30,
-  PLATFORM_RANGE: 3,   // moving platform swing, in tiles either side
-  PLATFORM_PERIOD: 360,// frames per full swing
-  PLAYER_MAX_LIVES: 5,
-  START_LIVES: 3,
-  RESPAWN_TIME: 45,
-  RESPAWN_INVULN: 90,
-  CHECKPOINT_HEAL: 0,
-  GOAL_DELAY: 80,      // frames of celebration before the next stage
-  MUSIC_BPM: 132,
-};
-
-// ======================
-// Canvas & Scaling
-// ======================
-const canvas = document.getElementById('game');
-const ctx = canvas.getContext('2d');
-
-let DPR = 1;
-let viewScale = 1;
-function resize() {
-  DPR = Math.max(1, Math.round(window.devicePixelRatio || 1));
-  const wrap = document.getElementById('wrap');
-  const tw = wrap.clientWidth, th = wrap.clientHeight;
-  // Largest integer scale that fits (in device pixels) keeps pixels crisp
-  viewScale = Math.max(1, Math.floor(Math.min(tw * DPR / CONFIG.WIDTH, th * DPR / CONFIG.HEIGHT)));
-  const scaledW = CONFIG.WIDTH * viewScale, scaledH = CONFIG.HEIGHT * viewScale;
-  canvas.width = scaledW; canvas.height = scaledH;
-  canvas.style.width = (scaledW / DPR) + 'px';
-  canvas.style.height = (scaledH / DPR) + 'px';
-  canvas.style.marginLeft = Math.floor((tw - scaledW / DPR) / 2) + 'px';
-  canvas.style.marginTop = Math.floor((th - scaledH / DPR) / 2) + 'px';
-  ctx.imageSmoothingEnabled = false; // reset whenever the canvas is resized
-}
-window.addEventListener('resize', resize);
-resize();
-
-// ======================
-// Utilities
-// ======================
-const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
-const lerp = (a,b,t)=> a+(b-a)*t;
-const rnd = (a,b)=> a + Math.random()*(b-a);
-const irnd = (a,b)=> Math.floor(rnd(a,b+1));
-const mod = (a,n)=> ((a % n) + n) % n;
-// Stable per-tile hash so tile speckles don't flicker
-function hash(x, y, i){ let h = Math.imul(x, 374761393) ^ Math.imul(y, 668265263) ^ Math.imul(i+1, 2246822519); h = Math.imul(h ^ (h>>>13), 1274126177); return ((h ^ (h>>>16))>>>0) / 4294967296; }
-function fmtTime(sec){ const t=Math.floor(sec); return Math.floor(t/60) + ':' + String(t%60).padStart(2,'0'); }
-
-// localStorage can throw (private mode, blocked storage) — never let it break the game
-const store = {
-  get(k){ try { return localStorage.getItem(k); } catch { return null; } },
-  set(k,v){ try { localStorage.setItem(k, v); } catch {} },
-};
-
-// ======================
-// Input Handling
-// ======================
-const input = { left:false, right:false, jump:false, jumpHeld:false };
-const keys = new Map([
-  ['ArrowLeft','left'], ['KeyA','left'],
-  ['ArrowRight','right'], ['KeyD','right'],
-  ['ArrowUp','jump'], ['KeyW','jump'], ['Space','jump'],
-  ['KeyP','pause'], ['Escape','pause'],
-  ['KeyM','mute'],
-  ['Enter','enter'],
-]);
-
-let mutePref = store.get('bb_mute') === '1';
-
-function setMuteUI() {
-  const txt = mutePref ? 'Sound: Off' : 'Sound: On';
-  document.getElementById('btnMute').textContent = txt;
-  document.getElementById('btnTitleMute').textContent = txt;
-}
-setMuteUI();
-
-function clearInput(){ input.left = input.right = input.jump = input.jumpHeld = false; }
-
-window.addEventListener('keydown', (e)=>{
-  const m = keys.get(e.code);
-  if (!m) return;
-  e.preventDefault(); // stop Space/arrows scrolling or re-clicking focused buttons
-  if (m === 'pause') { togglePause(); return; }
-  if (m === 'mute') { toggleMute(); return; }
-  if (gameState === STATE.TITLE && (m === 'enter' || m === 'jump')) { if (!e.repeat) startGame(); return; }
-  if (gameState === STATE.END && m === 'enter') { restartFromBeginning(); return; }
-  if (m === 'jump') { if (!e.repeat) input.jump = true; input.jumpHeld = true; }
-  if (m === 'left') input.left = true;
-  if (m === 'right') input.right = true;
-});
-window.addEventListener('keyup', (e)=>{
-  const m = keys.get(e.code);
-  if (m === 'jump') input.jumpHeld = false;
-  if (m === 'left') input.left = false;
-  if (m === 'right') input.right = false;
-});
-window.addEventListener('blur', ()=>{ clearInput(); if (gameState === STATE.PLAYING && !paused) togglePause(); });
-
-// Touch controls (pointer events cover touch, pen and mouse — one handler, no double-firing)
-function bindTouch(id, on, off){
-  const el = document.getElementById(id);
-  el.addEventListener('pointerdown', e=>{ e.preventDefault(); el.setPointerCapture?.(e.pointerId); el.classList.add('held'); on(); });
-  ['pointerup','pointercancel','lostpointercapture'].forEach(ev=> el.addEventListener(ev, e=>{ el.classList.remove('held'); off(); }));
-  el.addEventListener('contextmenu', e=> e.preventDefault());
-}
-bindTouch('touchLeft', ()=>{ input.left = true; }, ()=>{ input.left = false; });
-bindTouch('touchRight', ()=>{ input.right = true; }, ()=>{ input.right = false; });
-bindTouch('touchJump', ()=>{ input.jump = true; input.jumpHeld = true; }, ()=>{ input.jumpHeld = false; });
-bindTouch('touchPause', ()=> togglePause(), ()=>{});
-
-document.getElementById('btnPause').onclick = ()=> togglePause();
-document.getElementById('btnMute').onclick = ()=> toggleMute();
-document.getElementById('btnStart').onclick = ()=> startGame();
-document.getElementById('btnTitleMute').onclick = ()=> toggleMute();
-document.getElementById('btnResume').onclick = ()=> togglePause();
-document.getElementById('btnQuitToTitle').onclick = ()=> quitToTitle();
-document.getElementById('btnRestart').onclick = ()=> restartFromBeginning();
-document.getElementById('btnEndTitle').onclick = ()=> quitToTitle();
-// Drop focus after clicks so Space/Enter go to the game, not the last button
-document.querySelectorAll('button').forEach(b=> b.addEventListener('click', ()=> b.blur()));
-
-function toggleMute(){
-  mutePref = !mutePref; store.set('bb_mute', mutePref ? '1' : '0');
-  if (audio.ctx) audio.setMaster(mutePref ? 0 : 1);
-  setMuteUI();
-}
-
-function togglePause(){
-  if (gameState !== STATE.PLAYING) return;
-  paused = !paused;
-  clearInput();
-  document.getElementById('pauseUI').style.display = paused ? 'grid' : 'none';
-}
-
-function quitToTitle(){
-  stageIndex = 0; initStage(0);
-  setState(STATE.TITLE);
-}
-
-function restartFromBeginning(){
-  startGame();
-}
-
-// ======================
-// Audio (WebAudio)
-// ======================
-const audio = {
-  ctx:null, master:null,
-  musicGain:null, sfxGain:null,
-  init(){
-    if (this.ctx) return;
-    const AC = window.AudioContext || window.webkitAudioContext;
-    if (!AC) return;
-    const ctx = new AC();
-    this.ctx = ctx;
-    const master = ctx.createGain(); master.gain.value = mutePref ? 0 : 1; master.connect(ctx.destination); this.master = master;
-    this.musicGain = ctx.createGain(); this.musicGain.gain.value = 0.25; this.musicGain.connect(master);
-    this.sfxGain = ctx.createGain(); this.sfxGain.gain.value = 0.9; this.sfxGain.connect(master);
-    this.scheduleMusic();
-  },
-  setMaster(v){ if (this.master) this.master.gain.value = v; },
-  // Basic tone synth
-  beep(freq=440, dur=0.12, type='square', gain=0.35, bus=this.sfxGain, delay=0){ if(!this.ctx) return; const t=this.ctx.currentTime + delay; const o=this.ctx.createOscillator(); const g=this.ctx.createGain();
-    o.type=type; o.frequency.value=freq; o.connect(g); g.connect(bus || this.sfxGain);
-    g.gain.setValueAtTime(0, t);
-    g.gain.linearRampToValueAtTime(gain, t+0.01);
-    g.gain.exponentialRampToValueAtTime(0.001, t+dur);
-    o.start(t); o.stop(t+dur+0.02);
-  },
-  noise(dur=0.1, gain=0.4, bus){ if(!this.ctx) return; const t=this.ctx.currentTime; const buffer=this.ctx.createBuffer(1, Math.ceil(this.ctx.sampleRate*dur), this.ctx.sampleRate);
-    const data=buffer.getChannelData(0); for(let i=0;i<data.length;i++) data[i]=Math.random()*2-1;
-    const src=this.ctx.createBufferSource(); src.buffer=buffer; const g=this.ctx.createGain(); src.connect(g); g.connect(bus || this.sfxGain);
-    g.gain.setValueAtTime(gain, t); g.gain.exponentialRampToValueAtTime(0.001, t+dur);
-    src.start(t);
-  },
-  // Music: simple chiptune pattern in C major
-  scheduleMusic(){ if(!this.ctx) return;
-    // Sequenced via setInterval + quick envelopes (low-tech but sufficient)
-    const bpm = CONFIG.MUSIC_BPM; const beatMs = 60/bpm*1000;
-    const notes = [ // I-V-vi-IV style loop: C G Am F (arps)
-      [261.63,329.63,392.00], [196.00,246.94,392.00], [220.00,261.63,329.63], [174.61,220.00,261.63]
-    ];
-    let step=0; clearInterval(this.musicTimer);
-    this.musicTimer = setInterval(()=>{
-      if (!this.ctx || paused || document.hidden) return;
-      const chord = notes[Math.floor(step/8)%notes.length];
-      this.beep(chord[step%3], 0.10, 'square', 0.4, this.musicGain);
-      if (step%4===0) this.beep(chord[0]/2, 0.22, 'triangle', 0.6, this.musicGain); // bass
-      const m = step % 8;
-      if (m===0) this.noise(0.03, 0.5, this.musicGain);
-      if (m===4) this.noise(0.02, 0.35, this.musicGain);
-      step=(step+1)%32;
-    }, beatMs/2);
-  },
-  playJump(){ this.beep(523.25,0.12,'square',0.25); },
-  playLand(){ this.noise(0.04,0.25); },
-  playCarrot(){ this.beep(880,0.08,'triangle',0.28); this.beep(1174.66,0.08,'square',0.22,undefined,0.05); },
-  playStomp(){ this.beep(220,0.06,'square',0.35); this.beep(440,0.08,'square',0.22,undefined,0.04); },
-  playHurt(){ this.noise(0.1,0.4); this.beep(160,0.2,'sawtooth',0.2); },
-  playTote(){ this.beep(659.25,0.1,'triangle',0.3); this.beep(987.77,0.2,'square',0.25,undefined,0.08); },
-  playCheckpoint(){ this.beep(523.25,0.08,'square',0.28); this.beep(659.25,0.12,'square',0.24,undefined,0.08); },
-  playGoal(){ this.beep(523.25,0.15,'square',0.35); this.beep(659.25,0.15,'square',0.35,undefined,0.12); this.beep(783.99,0.2,'square',0.35,undefined,0.24); this.beep(1046.50,0.4,'square',0.35,undefined,0.36); },
-};
-
-// Wake audio on first user gesture (browsers block autoplay)
-['click','keydown','pointerdown','touchstart'].forEach(ev=> document.addEventListener(ev, ()=> { audio.init(); audio.ctx?.resume?.(); }, { once: true }));
-
-// ======================
-// Tiles
-// ======================
-// Tiles: 0 = empty, 1 = dirt, 2 = grass, 3 = stone block, 6 = spike (hurts, not solid)
-function solidTile(id){ return id===1||id===2||id===3; }
-function hazardTile(id){ return id===6; }
-
-// Draw one tile procedurally into context `g`; tx/ty seed the speckles so they stay put
-function drawTile(g, id, x, y, tx, ty){
-  const t=CONFIG.TILE; g.save(); g.translate(x, y);
-  const r = (i, n)=> Math.floor(hash(tx, ty, i) * n);
-  if (id===1){ // dirt
-    g.fillStyle = '#6b3f27'; g.fillRect(0,0,t,t);
-    g.fillStyle = '#5a341f'; for(let i=0;i<3;i++) g.fillRect(1+r(i,12), 1+r(i+9,13), 2,2);
-    g.fillStyle = '#7d4b2f'; g.fillRect(1+r(20,13), 1+r(21,13), 1,1);
-  } else if (id===2){ // grass top
-    g.fillStyle = '#6b3f27'; g.fillRect(0,2,t,t-2);
-    g.fillStyle = '#5a341f'; g.fillRect(1+r(3,12), 8+r(4,6), 2,2);
-    g.fillStyle = '#3fbf5a'; g.fillRect(0,0,t,6);
-    g.fillStyle = '#2fa84a'; for(let i=0;i<5;i++) g.fillRect(r(i,16), r(i+7,5), 1,1);
-    g.fillStyle = '#3fbf5a'; g.fillRect(r(30,15), 6, 2, 1); // little drips of grass
-    g.fillStyle = '#7ee081'; g.fillRect(0,0,t,1);
-    if (hash(tx,ty,40) < 0.18){ g.fillStyle = hash(tx,ty,41)<0.5 ? '#ff7aa2' : '#fff7cc'; g.fillRect(3+r(42,10), -2, 2, 2); } // flower
-  } else if (id===3){ // stone
-    g.fillStyle = '#7b7f8c'; g.fillRect(0,0,t,t);
-    g.fillStyle = '#5e626e'; g.fillRect(0,t-3,t,3); g.fillRect(t-2,0,2,t);
-    g.fillStyle = '#9aa0ae'; g.fillRect(0,0,t,2); g.fillRect(0,0,2,t);
-    g.fillStyle = '#8d93a1'; for(let i=0;i<3;i++) g.fillRect(3+r(i,9), 4+r(i+5,8), 2,2);
-  } else if (id===6){ // spike
-    g.fillStyle = '#9aa0ae';
-    for(let i=0;i<4;i++){ g.beginPath(); g.moveTo(i*4,16); g.lineTo(i*4+2,7); g.lineTo(i*4+4,16); g.closePath(); g.fill(); }
-    g.fillStyle = '#e6e9f0'; for(let i=0;i<4;i++) g.fillRect(i*4+1,10,1,4);
-  }
-  g.restore();
-}
-
-// ======================
-// Level Definitions (ASCII maps)
-// ======================
-// Legend:  # ground   B stone block   ^ spikes   S start   C carrot   T tote bag
-//          F fox      K checkpoint    M moving platform (swings sideways)   G goal
-const LEVELS = [
-  { name: "Sunny Meadow", map: [
-    "................................................................................................................",
-    "................................................................................................................",
-    "................................................................................................................",
-    "................................................................................................................",
-    "................................................................................................................",
-    "................................................................................................................",
-    ".....................................................................................................C..........",
-    ".......................................................................C........................................",
-    "...............CC..........C.CT........C................CC........................C.................BB..........",
-    "..............BBBB......########................................................C...C.............BB............",
-    "..S...C.C.C.........F...########..............C.C...K...^^.....F........................F.......BB........G.....",
-    "######################################..##############################..########################################",
-    "######################################..##############################..########################################",
-    "######################################..##############################..########################################",
-    "######################################..##############################..########################################",
-  ]},
-  { name: "Burrow Hills", map: [
-    "..................................................................................................................................",
-    "..................................................................................................................................",
-    "..................................................................................................................................",
-    "..................................................................................................................................",
-    "..................................................................................................................................",
-    "..................................................................................................................................",
-    "...............................C..................................................................................................",
-    "...............................................C.C.C..............CCCC.......C.C.C.............................CC.................",
-    "......................C..C..C.....................................BBBB........................................BBBB................",
-    "....................##########......T.C.CF.......M......K.F...^^.......F.......M........K......F....^^......F.........F.......G...",
-    "..S.......C.C..F....##########..#############.........#####################.........##############################################",
-    "##############################..#############.........#####################.........##############################################",
-    "##############################..#############.........#####################.........##############################################",
-    "##############################..#############.........#####################.........##############################################",
-    "##############################..#############.........#####################.........##############################################",
-  ]},
-  { name: "Carrot Summit", map: [
-    "............................................................................................................................................",
-    "............................................................................................................................................",
-    "............................................................................................................................................",
-    "............................................................................................................................................",
-    "........................................CC....................C.C.C........CC.....CC........................................................",
-    "............................................................................................................................................",
-    "....................C.....C.C.^^...F......................C.....M......TC..^^.....^^...F........CC.....................CC....CC.............",
-    "...................BBB..################.....K.C.F....######.........#####################............................BBB...BBB.............",
-    "...............C........################..##########..######.........#####################..KC..........C...F......^^.....^......F....G.....",
-    "..............BBB.......################..##########..######.........###########################..##########################################",
-    "..S.....C.T.............################..##########..######.........###########################..##########################################",
-    "########################################..##########..######.........###########################..##########################################",
-    "########################################..##########..######.........###########################..##########################################",
-    "########################################..##########..######.........###########################..##########################################",
-    "########################################..##########..######.........###########################..##########################################",
-  ]},
-];
-
-function parseLevel(def){
-  const rows = def.map, h = rows.length, w = rows[0].length;
-  const L = { name:def.name, w, h, tiles:[], start:[1,h-2], carrots:[], totes:[], foxes:[], checkpoints:[], plats:[], goal:null };
-  for (let y=0;y<h;y++){
-    if (rows[y].length !== w) throw new Error(`${def.name}: row ${y} is ${rows[y].length} wide, expected ${w}`);
-    const row = new Array(w).fill(0);
-    for (let x=0;x<w;x++){
-      const ch = rows[y][x];
-      if (ch==='#') row[x] = (y>0 && rows[y-1][x]==='#') ? 1 : 2;
-      else if (ch==='B') row[x] = 3;
-      else if (ch==='^') row[x] = 6;
-      else if (ch==='S') L.start = [x,y];
-      else if (ch==='C') L.carrots.push([x,y]);
-      else if (ch==='T') L.totes.push([x,y]);
-      else if (ch==='F') L.foxes.push([x,y]);
-      else if (ch==='K') L.checkpoints.push([x,y]);
-      else if (ch==='M') L.plats.push([x,y]);
-      else if (ch==='G') L.goal = [x,y];
-    }
-    L.tiles.push(row);
-  }
-  // Pre-render the static tiles once; each frame just blits the visible slice
-  L.canvas = document.createElement('canvas');
-  L.canvas.width = w*CONFIG.TILE; L.canvas.height = h*CONFIG.TILE;
-  const g = L.canvas.getContext('2d');
-  for (let y=0;y<h;y++) for (let x=0;x<w;x++){ const id=L.tiles[y][x]; if (id) drawTile(g, id, x*CONFIG.TILE, y*CONFIG.TILE, x, y); }
-  return L;
-}
-
-const levels = LEVELS.map(parseLevel);
-const TOTAL_CARROTS = levels.reduce((n,L)=> n + L.carrots.length, 0);
-
-// ======================
-// Entities & State
-// ======================
-const STATE = { TITLE:0, PLAYING:1, END:2 };
-let gameState = STATE.TITLE;
-let paused = false;
-let frame=0;
-let stageIndex=0;
-let camera = { x:0, y:0 };
-let shake=0; // screen shake
-let stats = { carrots:0, lives:CONFIG.START_LIVES, time:0 };
-let player, entities, particles, floaters;
-let respawnTimer=0;
-let goalTimer=0;
-let bannerTimer=0;
-let lastCheckpoint = null; // {level: i, x,y}
-
-// HUD helpers
-const hudCarrot = document.getElementById('hudCarrot');
-const hudLives = document.getElementById('hudLives');
-const hudPower = document.getElementById('hudPower');
-const hudTime = document.getElementById('hudTime');
-
-function setState(s){
-  gameState = s;
-  paused = false;
-  clearInput();
-  document.body.classList.toggle('playing', s===STATE.PLAYING);
-  document.getElementById('titleUI').style.display = s===STATE.TITLE ? 'grid' : 'none';
-  document.getElementById('pauseUI').style.display = 'none';
-  document.getElementById('endUI').style.display = s===STATE.END ? 'grid' : 'none';
-  if (s===STATE.TITLE) showBest();
-}
-
-function loadBest(){ try { return JSON.parse(store.get('bb_best')) || null; } catch { return null; } }
-function showBest(){
-  const b = loadBest();
-  document.getElementById('titleBest').textContent = b ? `🏆 Best run: ${fmtTime(b.time)} · ${b.carrots}/${TOTAL_CARROTS} carrots` : '';
-}
-
-function startGame(atStage=0){
-  stats = { carrots:0, lives:CONFIG.START_LIVES, time:0, fullRun: atStage===0 };
-  lastCheckpoint = null;
-  stageIndex = atStage; initStage(stageIndex);
-  setState(STATE.PLAYING);
-}
-
-// ======================
-// Particles & floating text (pooled)
-// ======================
-class Particle {
-  constructor(){ this.active=false; }
-  init(x,y,vx,vy,life, color){ this.x=x; this.y=y; this.vx=vx; this.vy=vy; this.life=life; this.t=0; this.color=color; this.active=true; }
-  upd(){ if(!this.active) return; this.t++; this.x+=this.vx; this.y+=this.vy; this.vy+=0.05; if(this.t>this.life) this.active=false; }
-  draw(){ if(!this.active) return; ctx.fillStyle=this.color; ctx.fillRect(Math.floor(this.x), Math.floor(this.y), 2,2); }
-}
-class FloatText {
-  constructor(){ this.active=false; }
-  init(x,y,text){ this.x=x; this.y=y; this.vy=-0.3; this.t=0; this.text=text; this.active=true; }
-  upd(){ if(!this.active) return; this.t++; this.y+=this.vy; if(this.t>40) this.active=false; }
-  draw(){ if(!this.active) return; ctx.font='bold 8px monospace'; ctx.textAlign='center'; ctx.fillStyle='#0008'; ctx.fillText(this.text, Math.floor(this.x)+1, Math.floor(this.y)+1); ctx.fillStyle = '#fff'; ctx.fillText(this.text, Math.floor(this.x), Math.floor(this.y)); }
-}
-
-function makePool(cls, n){ const arr=new Array(n); for(let i=0;i<n;i++) arr[i]=new cls(); return arr; }
-particles = makePool(Particle, 160);
-floaters = makePool(FloatText, 32);
-
-// ======================
-// Player
-// ======================
-class Player {
-  constructor(x,y){ this.x=x; this.y=y; this.prevY=y; this.vx=0; this.vy=0; this.w=10; this.h=14; this.onGround=false; this.coyote=0; this.jumpBuffer=0; this.jumping=false; this.gliding=false; this.powerTote=false; this.invuln=0; this.dir=1; this.landingSquash=0; this.dead=false; }
-  rect(){ return { x:this.x- this.w/2, y:this.y- this.h, w:this.w, h:this.h }; }
-  giveTote(){ this.powerTote=true; audio.playTote(); spawnSparkle(this.x, this.y-8); addFloat(this.x, this.y-18, 'TOTE!'); }
-  // Fox bites & spikes: the tote soaks one hit, otherwise lose a life
-  hurt(){
-    if (this.dead || this.invuln>0) return;
-    if (this.powerTote){
-      this.powerTote=false; this.invuln=60; audio.playHurt(); shake=4;
-      this.vx = -this.dir*1.2; this.vy = -3.5;
-      for(let i=0;i<2;i++) spawnSpark(this.x,this.y-6,'#f5e6c8');
-    } else this.kill();
-  }
-  // Pits always cost a life
-  kill(){
-    if (this.dead) return;
-    stats.lives = Math.max(0, stats.lives-1); audio.playHurt(); shake=6;
-    respawnTimer = CONFIG.RESPAWN_TIME; this.dead=true;
-    spawnSpark(this.x, Math.min(this.y, CONFIG.HEIGHT)-8, '#f4f1e8');
-  }
-  stompBounce(){ this.vy = CONFIG.STOMP_BOUNCE; this.jumping = true; audio.playStomp(); shake=3; }
-}
-
-// ======================
-// Entities
-// ======================
-// Grid-placed things sit on the floor of their cell (feet at (y+1)*TILE); pickups float at cell centre.
-class Fox {
-  constructor(x,y){ this.x=x*CONFIG.TILE+8; this.y=(y+1)*CONFIG.TILE; this.vy=0; this.w=12; this.h=12; this.dir=-1; this.onGround=false; this.squash=0; this.gone=false; }
-  rect(){ return { x:this.x-this.w/2, y:this.y-this.h, w:this.w, h:this.h }; }
-}
-class Carrot { constructor(x,y){ this.x=x*CONFIG.TILE+8; this.y=y*CONFIG.TILE+8; this.collected=false; this.phase=x*0.7; } }
-class Tote { constructor(x,y){ this.x=x*CONFIG.TILE+8; this.y=y*CONFIG.TILE+8; this.collected=false; } }
-class Checkpoint { constructor(x,y){ this.x=x*CONFIG.TILE+8; this.y=(y+1)*CONFIG.TILE; this.activated=false; } }
-class Goal { constructor(x,y){ this.x=x*CONFIG.TILE+8; this.y=(y+1)*CONFIG.TILE; this.hit=false; } }
-class MovePlat {
-  constructor(x,y,phase){ this.x=x*CONFIG.TILE+8; this.y=y*CONFIG.TILE+8; this.origin={x:this.x,y:this.y}; this.prevX=this.x; this.phase=phase; this.w=24; this.h=6; }
-  rect(){ return { x:this.x-this.w/2, y:this.y-this.h/2, w:this.w, h:this.h }; }
-}
-
-// ======================
-// Stage init
-// ======================
-function initStage(i){
-  const L = levels[i];
-  entities = {
-    foxes: L.foxes.map(([x,y])=> new Fox(x,y)),
-    carrots: L.carrots.map(([x,y])=> new Carrot(x,y)),
-    totes: L.totes.map(([x,y])=> new Tote(x,y)),
-    checkpoints: L.checkpoints.map(([x,y])=> new Checkpoint(x,y)),
-    plats: L.plats.map(([x,y],k)=> new MovePlat(x,y, k*Math.PI)),
-    goal: L.goal ? new Goal(L.goal[0], L.goal[1]) : null,
-  };
-  spawnPlayer(L);
-  for (const p of particles) p.active=false;
-  for (const f of floaters) f.active=false;
-  camera.x = clamp(player.x - CONFIG.WIDTH*0.4, 0, L.w*CONFIG.TILE - CONFIG.WIDTH); camera.y = 0;
-  respawnTimer = 0; goalTimer = 0; bannerTimer = 150;
-}
-
-function spawnPlayer(L){
-  if (lastCheckpoint && lastCheckpoint.level===stageIndex) player = new Player(lastCheckpoint.x, lastCheckpoint.y);
-  else player = new Player(L.start[0]*CONFIG.TILE + 8, (L.start[1]+1)*CONFIG.TILE);
-}
-
-// ======================
-// Collision helpers
-// ======================
-function tileAt(L, px, py){
-  const tx = Math.floor(px/CONFIG.TILE); const ty = Math.floor(py/CONFIG.TILE);
-  if (tx<0||ty<0||tx>=L.w||ty>=L.h) return 0; return L.tiles[ty][tx];
-}
-// Level sides are walls; above and below are open (so pits are deadly)
-function solidAt(L, tx, ty){
-  if (tx<0||tx>=L.w) return true;
-  if (ty<0||ty>=L.h) return false;
-  return solidTile(L.tiles[ty][tx]);
-}
-
-function rectVsRect(a,b){ return !(a.x+a.w<=b.x || a.x>=b.x+b.w || a.y+a.h<=b.y || a.y>=b.y+b.h); }
-
-// Resolve collisions on separate axes for solids
-function resolveSolids(L, r, vx, vy){
-  const T = CONFIG.TILE;
-  let collidedX=false, hitHead=false, onGround=false;
-  // Horizontal
-  r.x += vx;
-  if (vx !== 0){
-    for (let ty=Math.floor(r.y/T); ty<=Math.floor((r.y+r.h)/T); ty++){
-      for (let tx=Math.floor(r.x/T)-1; tx<=Math.floor((r.x+r.w)/T)+1; tx++){
-        if (!solidAt(L, tx, ty)) continue;
-        const tr = { x:tx*T, y:ty*T, w:T, h:T };
-        if (rectVsRect(r,tr)){ r.x = vx>0 ? tr.x - r.w : tr.x + tr.w; collidedX=true; }
-      }
-    }
-  }
-  // Vertical
-  r.y += vy;
-  for (let ty=Math.floor(r.y/T)-1; ty<=Math.floor((r.y+r.h)/T)+1; ty++){
-    for (let tx=Math.floor(r.x/T); tx<=Math.floor((r.x+r.w)/T); tx++){
-      if (!solidAt(L, tx, ty)) continue;
-      const tr = { x:tx*T, y:ty*T, w:T, h:T };
-      if (rectVsRect(r,tr)){
-        if (vy>0){ r.y = tr.y - r.h; onGround=true; }
-        else { r.y = tr.y + tr.h; hitHead=true; }
-      }
-    }
-  }
-  return { collidedX, onGround, hitHead };
-}
-
-// Spikes only hurt if you touch the pointy part
-function touchingHazard(L, r){
-  const T = CONFIG.TILE;
-  for (let ty=Math.floor(r.y/T); ty<=Math.floor((r.y+r.h-0.01)/T); ty++)
-    for (let tx=Math.floor(r.x/T); tx<=Math.floor((r.x+r.w-0.01)/T); tx++)
-      if (hazardTile(tileAt(L, tx*T, ty*T)) && rectVsRect(r, { x:tx*T+3, y:ty*T+9, w:T-6, h:T-9 })) return true;
-  return false;
-}
-
-// ======================
-// Rendering helpers
-// ======================
-function drawSky(){
-  // gradient sky + parallax hills & clouds
-  const w=CONFIG.WIDTH, h=CONFIG.HEIGHT;
-  const g = ctx.createLinearGradient(0,0,0,h);
-  g.addColorStop(0,'#87c5ff'); g.addColorStop(1,'#d8f0ff');
-  ctx.fillStyle=g; ctx.fillRect(0,0,w,h);
-  // sun
-  ctx.fillStyle='#fff3b0'; ctx.fillRect(w-70, 22, 22, 22); ctx.fillStyle='#ffe066'; ctx.fillRect(w-67, 25, 16, 16);
-  // clouds
-  const t = frame*0.15;
-  ctx.fillStyle='#ffffffcc';
-  for (let i=0;i<6;i++){
-    const cx = mod(i*97 - camera.x*0.2 + t, w+160) - 80;
-    const cy = 18 + (i%3)*14;
-    ctx.fillRect(cx, cy, 40,10); ctx.fillRect(cx+8, cy-5, 24,6); ctx.fillRect(cx+4, cy+10, 30, 3);
-  }
-  // far hills
-  ctx.fillStyle='#a6dcb4';
-  for (let x=0;x<w;x+=2){ const wx = x + camera.x*0.25; const hh = 46 + Math.sin(wx*0.021)*14 + Math.sin(wx*0.053)*6; ctx.fillRect(x, h-hh-40, 2, hh+40); }
-  // near hills
-  ctx.fillStyle='#7ccf95';
-  for (let x=0;x<w;x+=2){ const wx = x + camera.x*0.5; const hh = 30 + Math.sin(wx*0.031+1)*12 + Math.sin(wx*0.081)*4; ctx.fillRect(x, h-hh-24, 2, hh+24); }
-}
-
-function drawLevelTiles(L){
-  // blit the visible slice of the pre-rendered level (we're already in world space)
-  const sx = Math.max(0, Math.floor(camera.x)), sw = Math.min(CONFIG.WIDTH+2, L.canvas.width - sx);
-  ctx.drawImage(L.canvas, sx, 0, sw, L.canvas.height, sx, 0, sw, L.canvas.height);
-}
-
-function drawPlatform(p){
-  const x = Math.round(p.x - p.w/2), y = Math.round(p.y - p.h/2);
-  ctx.fillStyle = '#b9a77a'; ctx.fillRect(x, y, p.w, p.h);
-  ctx.fillStyle = '#d9c89a'; ctx.fillRect(x, y, p.w, 1);
-  ctx.fillStyle = '#8b7a55'; ctx.fillRect(x, y+p.h-2, p.w, 2);
-  ctx.fillRect(x+7, y+1, 1, p.h-3); ctx.fillRect(x+16, y+1, 1, p.h-3);
-}
-
-function drawCarrot(c){
-  const bob = Math.round(Math.sin(frame*0.08 + c.phase)*1.5);
-  ctx.save(); ctx.translate(Math.round(c.x)-4, Math.round(c.y)-6+bob);
-  ctx.fillStyle='#ff9f1c'; ctx.fillRect(2,3,4,4); ctx.fillRect(3,7,2,2); ctx.fillRect(3,9,1,1); // tapered body
-  ctx.fillStyle='#e07b00'; ctx.fillRect(2,5,2,1); ctx.fillRect(4,7,1,1);
-  ctx.fillStyle='#2ec27e'; ctx.fillRect(3,0,1,3); ctx.fillRect(4,1,2,2); ctx.fillRect(1,1,2,1); // leaves
-  ctx.restore();
-}
-
-function drawTote(t){
-  const bob = Math.round(Math.sin(frame*0.06)*2);
-  ctx.save(); ctx.translate(Math.round(t.x)-5, Math.round(t.y)-7+bob); // small beige tote
-  if (frame%40 < 20){ ctx.fillStyle='#fff7cc88'; ctx.fillRect(-1,1,12,12); }
-  ctx.fillStyle='#f5e6c8'; ctx.fillRect(1,3,8,8);
-  ctx.strokeStyle='#d8c8a8'; ctx.lineWidth=1; ctx.strokeRect(1.5,3.5,7,7);
-  ctx.fillStyle='#e6d6b6'; ctx.fillRect(2,1,1,3); ctx.fillRect(7,1,1,3); ctx.fillRect(2,1,6,1); // handle
-  ctx.fillStyle='#c59'; ctx.fillRect(4,6,2,2); // little embroidered motif
-  ctx.restore();
-}
-
-function drawCheckpoint(c){
-  // carrot signpost
-  ctx.save();
-  ctx.translate(c.x-8, c.y-16);
-  ctx.fillStyle='#7a5230'; ctx.fillRect(7,4,2,12);
-  const wave = c.activated ? Math.round(Math.sin(frame*0.2)) : 0;
-  ctx.fillStyle=c.activated? '#ffd166':'#c9a46a'; ctx.fillRect(0+wave,0,8,6);
-  ctx.fillStyle=c.activated? '#2ec27e' : '#6e8f6e'; ctx.fillRect(2+wave,-2,4,2);
-  ctx.restore();
-}
-
-function drawGoal(g){
-  // big golden carrot flag
-  ctx.save(); ctx.translate(g.x-8, g.y-32);
-  ctx.fillStyle='#7a5230'; ctx.fillRect(7,4,2,28);
-  const wave = Math.round(Math.sin(frame*0.12)*1.5);
-  ctx.fillStyle='#ffd166'; ctx.fillRect(9,4+wave,12,8); ctx.fillRect(21,6+wave,3,4);
-  ctx.fillStyle='#ff9f1c'; ctx.fillRect(12,7+wave,6,2);
-  ctx.fillStyle='#2ec27e'; ctx.fillRect(5,0,6,4);
-  if (frame%30<15){ ctx.fillStyle='#fff'; ctx.fillRect(24,2,1,1); ctx.fillRect(2,10,1,1); }
-  ctx.restore();
-}
-
-function drawFox(f){
-  // simple orange fox; squashes flat when bopped
-  ctx.save(); ctx.translate(Math.round(f.x), Math.round(f.y));
-  if (f.squash>0){ ctx.fillStyle='#f28c28'; ctx.fillRect(-6,-3,12,3); ctx.fillStyle='#fff'; ctx.fillRect(-2,-3,4,1); ctx.restore(); return; }
-  ctx.scale(f.dir, 1);
-  const step = Math.floor(frame/8)%2;
-  ctx.fillStyle='#f28c28';
-  ctx.fillRect(-6,-8,10,5);                // body
-  ctx.fillRect(1,-11,5,5);                 // head
-  ctx.fillRect(2,-13,1,2); ctx.fillRect(5,-13,1,2); // ears
-  ctx.fillRect(-9,-9,4,3);                 // tail
-  ctx.fillStyle='#fff'; ctx.fillRect(-10,-9,2,2); ctx.fillRect(3,-7,4,2); // tail tip + muzzle
-  ctx.fillStyle='#000'; ctx.fillRect(4,-10,1,1); ctx.fillRect(7,-7,1,1);  // eye + nose
-  ctx.fillStyle='#7a3b10'; ctx.fillRect(-5,-3,2,3-step); ctx.fillRect(1,-3,2,2+step); // legs
-  ctx.restore();
-}
-
-function drawBunBun(p){
-  // cute off-white bunny with blue pin-striped dress
-  if (p.invuln>0 && frame%6<3) return; // blink while invulnerable
-  const x = Math.round(p.x), y = Math.round(p.y);
-  ctx.save();
-  // landing squash & stretch
-  const squash = p.landingSquash>0 ? 1 + 0.15*Math.sin(p.landingSquash/8) : 1;
-  const stretchY = p.onGround? (2 - squash) : 1;
-  ctx.translate(x, y);
-  ctx.scale(p.dir, stretchY);
-  ctx.translate(0, -p.h);
-
-  // Glide: the tote opens up like a little parachute
-  if (p.gliding){
-    ctx.fillStyle='#f5e6c8'; ctx.fillRect(-7,-14,14,4); ctx.fillStyle='#e6d6b6'; ctx.fillRect(-7,-10,14,1);
-    ctx.fillStyle='#d8c8a8'; ctx.fillRect(-6,-9,1,6); ctx.fillRect(5,-9,1,6);
-  }
-
-  // Body (fur)
-  ctx.fillStyle='#f4f1e8';
-  ctx.fillRect(-5, 2, 10, 10); // torso
-  ctx.fillRect(-4, -2, 8, 6);  // head
-  // Ears (flop back a little while running)
-  const flop = Math.abs(p.vx) > 1 ? 1 : 0;
-  ctx.fillRect(-4-flop, -8+flop, 3, 6);
-  ctx.fillRect(1-flop, -8, 3, 6);
-  ctx.fillStyle='#f6b1c3'; // inner ear + nose + cheeks
-  ctx.fillRect(-3-flop, -7+flop, 1, 3);
-  ctx.fillRect(2-flop, -7, 1, 3);
-  ctx.fillRect(2, 0, 1, 1); // nose
-  ctx.fillStyle='#000';
-  ctx.fillRect(-1, -1, 1, 1); // eyes
-  ctx.fillRect(2, -1, 1, 1);
-
-  // Dress (blue pin-striped pinafore)
-  ctx.fillStyle='#7db6ff'; ctx.fillRect(-5, 7, 10, 6);
-  ctx.fillStyle='#5fa0ff'; for(let i=-4;i<=4;i+=2) ctx.fillRect(i,7,1,6); // pin-stripes
-
-  // Tote on the shoulder (if powered) — shine a bit
-  if (p.powerTote && !p.gliding){
-    ctx.save(); ctx.translate(-5,8); ctx.fillStyle='#f5e6c8'; ctx.fillRect(-3,-2,6,4); ctx.fillStyle='#e6d6b6'; ctx.fillRect(-2,-4,4,2);
-    ctx.fillStyle='#c59'; ctx.fillRect(-1,0,2,1);
-    if ((frame%20)<10){ ctx.fillStyle='#fff'; ctx.fillRect(2,-4,1,1); }
-    ctx.restore();
-  }
-
-  // Feet (frame-based)
-  const running = p.onGround && Math.abs(p.vx) > 0.2;
-  const fx = running ? Math.round(Math.sin(frame*0.4)*1.5) : 0;
-  ctx.fillStyle='#e8e4d8';
-  ctx.fillRect(-4+fx, 12, 3, 2);
-  ctx.fillRect( 1-fx, 12, 3, 2);
-
-  ctx.restore();
-}
-
-function drawBanner(L){
-  if (bannerTimer<=0) return;
-  const a = Math.min(1, bannerTimer/30);
-  ctx.save(); ctx.globalAlpha = a;
-  ctx.fillStyle = '#0b1020aa'; ctx.fillRect(0, 70, CONFIG.WIDTH, 44);
-  ctx.textAlign='center';
-  ctx.font='bold 10px monospace'; ctx.fillStyle='#ffd166'; ctx.fillText(`STAGE ${stageIndex+1} / ${levels.length}`, CONFIG.WIDTH/2, 88);
-  ctx.font='bold 16px monospace'; ctx.fillStyle='#fff'; ctx.fillText(L.name, CONFIG.WIDTH/2, 106);
-  ctx.restore();
-}
-
-// ======================
-// Particles & effects
-// ======================
-function spawnSpark(x,y,color='#ffd166', n=8){ for(let i=0;i<n;i++){ const p = particles.find(p=>!p.active); if(!p) return; p.init(x,y, rnd(-0.8,0.8), rnd(-1.2,-0.2), irnd(20,40), color); } }
-function spawnSparkle(x,y){ spawnSpark(x,y,'#fff7cc'); }
-function spawnConfetti(x,y){ for(let i=0;i<80;i++){ const p = particles.find(p=>!p.active); if(!p) return; const c = ['#ff7aa2','#ffd166','#7ee081','#7db6ff'][i%4]; p.init(x,y, rnd(-1.5,1.5), rnd(-2.5,-0.5), irnd(40,80), c); } }
-function addFloat(x,y,text){ const f = floaters.find(f=>!f.active); if(!f) return; f.init(x,y,text); }
-
-// ======================
-// Game Loop (fixed timestep)
-// ======================
-let accum=0, last=performance.now();
-function loop(now){
-  requestAnimationFrame(loop);
-  const dt = Math.min(100, now-last); last=now; accum += dt;
-  while (accum >= 1000/60){ tick(); accum -= 1000/60; }
-  render();
-}
-
-function setCameraToPlayer(L){
-  const targetX = player.x - CONFIG.WIDTH*0.4 + (player.vx*10);
-  camera.x = lerp(camera.x, clamp(targetX, 0, L.w*CONFIG.TILE - CONFIG.WIDTH), CONFIG.CAMERA_LERP);
-}
-
-function tick(){
-  if (gameState===STATE.TITLE){ // attract mode: slowly pan across the meadow
-    frame++;
-    const L = levels[stageIndex];
-    camera.x = (0.5 - 0.5*Math.cos(frame/900)) * (L.w*CONFIG.TILE - CONFIG.WIDTH);
-    return;
-  }
-  if (gameState!==STATE.PLAYING || paused) return;
-  frame++;
-  const L = levels[stageIndex];
-  if (goalTimer>0){ if (--goalTimer===0) { nextStage(); return; } }
-  else stats.time += 1/60;
-  if (bannerTimer>0) bannerTimer--;
-  updateHUD();
-
-  // moving platforms
-  for (const p of entities.plats){
-    p.prevX = p.x;
-    p.x = p.origin.x + Math.sin(frame/CONFIG.PLATFORM_PERIOD*Math.PI*2 + p.phase) * CONFIG.PLATFORM_RANGE*CONFIG.TILE;
-  }
-
-  updatePlayer(L);
-  for (const fx of entities.foxes) updateFox(L, fx);
-  for (const p of particles) if (p.active) p.upd();
-  for (const f of floaters) if (f.active) f.upd();
-  setCameraToPlayer(L);
-  shake *= CONFIG.SHAKE_DECAY;
-}
-
-function updateHUD(){
-  hudCarrot.textContent = '🥕 x ' + String(stats.carrots).padStart(2,'0');
-  hudLives.textContent  = '❤️ x ' + stats.lives;
-  hudPower.textContent  = player && player.powerTote? '👜 Tote' : '👜 —';
-  hudTime.textContent = '⏱ ' + fmtTime(stats.time);
-}
-
-function updatePlayer(L){
-  if (respawnTimer>0){ if (--respawnTimer===0) respawn(); return; }
-  const p = player;
-  p.prevY = p.y;
-  const celebrating = goalTimer>0;
-  const left = input.left && !celebrating, right = input.right && !celebrating;
-
-  // input move
-  let ax = 0;
-  if (left && !right) ax = -CONFIG.AIR_ACCEL;
-  if (right && !left) ax = CONFIG.AIR_ACCEL;
-  if (ax !== 0 && Math.sign(ax) !== Math.sign(p.vx)) ax *= 2; // snappier turnarounds
-  p.vx = clamp(p.vx + ax, -CONFIG.MOVE_SPEED, CONFIG.MOVE_SPEED);
-  if (ax === 0) p.vx *= (p.onGround? CONFIG.FRICTION_GROUND : CONFIG.FRICTION_AIR);
-  if (Math.abs(p.vx) < 0.02) p.vx = 0;
-  if (p.vx>0.05) p.dir=1; else if (p.vx<-0.05) p.dir=-1;
-
-  // coyote & jump buffering
-  if (p.onGround) p.coyote = CONFIG.COYOTE_TIME; else p.coyote--;
-  if (input.jump && !celebrating){ p.jumpBuffer=CONFIG.JUMP_BUFFER; } else p.jumpBuffer--;
-  input.jump = false;
-
-  // Jump
-  if (p.jumpBuffer>0 && p.coyote>0){ p.vy = CONFIG.JUMP_VELOCITY; p.onGround=false; p.coyote=0; p.jumpBuffer=0; p.jumping=true; audio.playJump(); }
-  // Variable jump height: releasing early cuts the jump once
-  if (p.jumping && !input.jumpHeld && p.vy < 0){ p.vy *= CONFIG.VAR_JUMP_CUT; p.jumping=false; }
-  if (p.vy >= 0) p.jumping = false;
-
-  // Glide
-  p.gliding = !p.onGround && p.powerTote && input.jumpHeld && p.vy>0;
-
-  // gravity
-  p.vy += (p.gliding? CONFIG.GLIDE_GRAVITY : CONFIG.GRAVITY);
-  p.vy = Math.min(p.vy, p.gliding ? CONFIG.GLIDE_MAX_FALL : CONFIG.MAX_FALL);
-
-  // Collide with tiles
-  const r = p.rect();
-  const res = resolveSolids(L, r, p.vx, p.vy);
-  const wasGround = p.onGround;
-  p.onGround = res.onGround;
-  if (res.collidedX) p.vx = 0;
-  if (res.onGround) p.vy = 0;
-  if (res.hitHead && p.vy<0) p.vy=0; // bonk
-  p.x = r.x + p.w/2; p.y = r.y + p.h;
-
-  // Moving platforms are one-way: land on them from above and ride along
-  for (const pl of entities.plats){
-    const pr = pl.rect();
-    if (p.vy>=0 && p.x+p.w/2 > pr.x && p.x-p.w/2 < pr.x+pr.w && p.prevY <= pr.y+1 && p.y >= pr.y-0.5){
-      p.y = pr.y; p.vy = 0; p.onGround = true;
-      p.x += pl.x - pl.prevX;
-    }
-  }
-  if (p.onGround && !wasGround){ p.landingSquash = 12; audio.playLand(); }
-  if (p.landingSquash>0) p.landingSquash--;
-  if (p.invuln>0) p.invuln--;
-
-  if (touchingHazard(L, p.rect())) p.hurt();
-
-  // Carrots
-  for (const c of entities.carrots){ if (!c.collected && Math.hypot(p.x - c.x, p.y-8 - c.y) < 10){
-    c.collected=true; stats.carrots++; addFloat(c.x, c.y-8, '+1'); audio.playCarrot(); spawnSparkle(c.x, c.y-8);
-  }}
-  // Tote
-  for (const t of entities.totes){ if (!t.collected && Math.hypot(p.x - t.x, p.y-8 - t.y) < 10){ t.collected=true; p.giveTote(); } }
-  // Checkpoints
-  for (const cp of entities.checkpoints){
-    if (!cp.activated && Math.abs(p.x - cp.x) < 10 && Math.abs(p.y - cp.y) < 16){
-      cp.activated=true; lastCheckpoint = { level: stageIndex, x: cp.x, y: cp.y };
-      stats.lives = clamp(stats.lives + CONFIG.CHECKPOINT_HEAL, 0, CONFIG.PLAYER_MAX_LIVES);
-      audio.playCheckpoint(); spawnSpark(cp.x, cp.y-14, '#ffd166'); addFloat(cp.x, cp.y-22, 'CHECKPOINT');
-    }
-  }
-  // Goal
-  const g = entities.goal;
-  if (g && !g.hit && Math.abs(p.x - g.x) < 10 && Math.abs(p.y - g.y) < 20){
-    g.hit=true; goalTimer = CONFIG.GOAL_DELAY; audio.playGoal(); spawnConfetti(g.x, g.y-24);
-  }
-
-  // Fox collisions: land on top to bop, touch anywhere else and get hurt
-  for (const fx of entities.foxes){
-    if (fx.gone || fx.squash>0 || p.dead) continue;
-    const fr = fx.rect();
-    if (!rectVsRect(p.rect(), fr)) continue;
-    if (p.vy>0 && p.prevY <= fr.y + 4){
-      p.stompBounce(); fx.squash = CONFIG.FOX_SQUASH_TIME; spawnSpark(fx.x, fx.y-8, '#ffa94d'); addFloat(fx.x, fx.y-14, 'BOP!');
-    } else p.hurt();
-  }
-
-  // Fell off the world
-  if (p.y > L.h*CONFIG.TILE + 24) p.kill();
-}
-
-function updateFox(L, f){
-  if (f.gone) return;
-  if (f.squash>0){ if (--f.squash===0) f.gone=true; return; }
-  const T = CONFIG.TILE;
-  f.vy = Math.min(f.vy + CONFIG.GRAVITY, CONFIG.MAX_FALL); f.y += f.vy;
-  f.onGround = solidTile(tileAt(L, f.x, f.y));
-  if (f.onGround){ f.y = Math.floor(f.y/T)*T; f.vy = 0; }
-  if (f.y > L.h*T + 32){ f.gone = true; return; }
-  if (!f.onGround) return;
-  // Patrol: turn around at walls, spikes and ledges
-  const front = f.x + f.dir*(f.w/2 + 1);
-  const ahead = tileAt(L, front, f.y-4);
-  if (solidTile(ahead) || hazardTile(ahead) || !solidTile(tileAt(L, front, f.y+2))) f.dir *= -1;
-  else f.x += CONFIG.FOX_SPEED * f.dir;
-}
-
-function respawn(){
-  if (stats.lives<=0){ showEnd(false); return; }
-  spawnPlayer(levels[stageIndex]);
-  player.invuln = CONFIG.RESPAWN_INVULN;
-}
-
-function nextStage(){
-  if (stageIndex < levels.length-1){ stageIndex++; initStage(stageIndex); }
-  else showEnd(true);
-}
-
-function showEnd(won){
-  setState(STATE.END);
-  let line = `Carrots: ${stats.carrots} / ${TOTAL_CARROTS}\nTime:    ${fmtTime(stats.time)}`;
-  if (won){
-    const best = loadBest();
-    const better = stats.fullRun && (!best || stats.time < best.time);
-    if (better) store.set('bb_best', JSON.stringify({ time: stats.time, carrots: stats.carrots }));
-    if (better) line += '\n🏆 New best time!'; else if (best) line += `\nBest:    ${fmtTime(best.time)}`;
-  } else {
-    line = `Reached stage ${stageIndex+1} of ${levels.length}\n` + line;
-  }
-  document.getElementById('endTitle').textContent = won ? 'You did it! 🎉' : 'Out of lives! 🦊';
-  document.getElementById('endStats').textContent = line;
-  document.getElementById('endMsg').innerHTML = won
-    ? (stats.carrots === TOTAL_CARROTS ? 'Every single carrot! BunBun is <em>tote-ally</em> impressed. 🥕✨' : 'Thanks for helping BunBun! You’re totally <em>tote-ally</em> awesome.')
-    : 'BunBun believes in you. Give it another hop?';
-}
-
-// ======================
-// Render
-// ======================
-function render(){
-  const L = levels[stageIndex];
-  ctx.setTransform(viewScale, 0, 0, viewScale, 0, 0); // draw at 426×240, scaled up crisply
-
-  // screen shake
-  ctx.save();
-  if (shake > 0.3) ctx.translate(Math.round((Math.random()-0.5)*shake), Math.round((Math.random()-0.5)*shake));
-
-  drawSky();
-
-  // World-space
-  ctx.save();
-  ctx.translate(-Math.floor(camera.x), -Math.floor(camera.y));
-  drawLevelTiles(L);
-  for (const p of entities.plats) drawPlatform(p);
-  for (const cp of entities.checkpoints) drawCheckpoint(cp);
-  if (entities.goal) drawGoal(entities.goal);
-  for (const c of entities.carrots) if(!c.collected) drawCarrot(c);
-  for (const t of entities.totes) if(!t.collected) drawTote(t);
-  for (const f of entities.foxes) if (!f.gone) drawFox(f);
-  if (gameState!==STATE.TITLE && player && !player.dead) drawBunBun(player);
-  for (const p of particles) if (p.active) p.draw();
-  for (const f of floaters) if (f.active) f.draw();
-  ctx.restore(); // world-space
-
-  if (gameState===STATE.PLAYING) drawBanner(L);
-  ctx.restore(); // shake
-}
-
-// ======================
-// Boot
-// ======================
-initStage(0);
-setState(STATE.TITLE);
-const devStage = parseInt(new URLSearchParams(location.search).get('stage'), 10);
-if (devStage >= 1 && devStage <= levels.length) startGame(devStage-1);
-requestAnimationFrame(loop);
-</script>
+  <script type="module" src="js/app.js"></script>
 </body>
 </html>
