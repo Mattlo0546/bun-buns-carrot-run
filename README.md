@@ -88,7 +88,9 @@ assets/             BunBun sprite sheets
 
 ## 📜 History
 
-BunBun’s Carrot Run started as a small single-file canvas game. It grew into a bigger NES-style platformer with a hub world, three worlds and hand-drawn BunBun sprite sheets.
+BunBun’s Carrot Run was born at a hackathon at the **University of Bristol**. It had absolutely nothing to do with the hackathon’s theme 🙃. The real motivation was that GitHub was giving students free access to **Claude Opus 4.6** at the time, and it felt rude not to put it to work. 🐰🥕
+
+It started as a small single-file canvas game. It grew into a bigger NES-style platformer with a hub world, three worlds and hand-drawn BunBun sprite sheets.
 
 The Character Maker was first built as a separate Next.js app (**gamify.me**). It was hosted on Vercel as **opengame** (opengame.me), and generated sprites server-side through Vertex AI. That hosting has been retired.
 
