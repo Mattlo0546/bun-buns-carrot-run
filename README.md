@@ -13,7 +13,7 @@ Play as BunBun, or use the Character Maker to turn a photo or a one-line descrip
 ![No build step](https://img.shields.io/badge/build_step-none-2ec27e)
 ![Bring your own key](https://img.shields.io/badge/API_key-bring_your_own-ff7aa2)
 
-<img src="docs/level.png" alt="BunBun in World 1-1, with foxes, carrots and question blocks" width="820" />
+<img src="docs/demo.gif" alt="Demo: title screen, the Character Maker, then BunBun grabbing a leek power-up, bopping foxes and clearing World 1-1" width="820" />
 
 </div>
 
@@ -29,11 +29,11 @@ Play as BunBun, or use the Character Maker to turn a photo or a one-line descrip
 
 <table>
   <tr>
-    <td><img src="docs/title.png" alt="Title screen" /></td>
+    <td><img src="docs/level.png" alt="BunBun in World 1-1" /></td>
     <td><img src="docs/maker.png" alt="The Character Maker" /></td>
   </tr>
   <tr>
-    <td align="center"><sub>Title screen</sub></td>
+    <td align="center"><sub>World 1-1</sub></td>
     <td align="center"><sub>Character Maker</sub></td>
   </tr>
 </table>
